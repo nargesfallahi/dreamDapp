@@ -6,7 +6,6 @@ import ExampleNFT from 0xf8d6e0586b0a20c7
 // stored in /storage/NFTMinter
 
 transaction{
-
     // local variable for storing the minter reference
     let minter: &ExampleNFT.NFTMinter
 
@@ -30,11 +29,7 @@ transaction{
             name: "Second NFT",
             description: "The Best NFT",
             thumbnail: "NFT: Thumbnail",
-            metadata: {
-                power: "The best",
-                will: "The strongest",
-                determination: "unbeatable"
-            }
+            royalties: []
         )
 
         log("Minted an NFT")
