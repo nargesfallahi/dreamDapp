@@ -1,5 +1,6 @@
 import NonFungibleToken from 0xf8d6e0586b0a20c7
 import ExampleNFT from 0xf8d6e0586b0a20c7
+import MetadataViews from 0xf8d6e0586b0a20c7
 
 // This script uses the NFTMinter resource to mint a new NFT
 // It must be run with the account that has the minter resource
@@ -11,8 +12,24 @@ transaction{
 
     prepare(signer: AuthAccount) {
         // borrow a reference to the NFTMinter resource in storage
-        self.minter = signer.borrow<&ExampleNFT.NFTMinter>(from: ExampleNFT.MinterStoragePath)
-            ?? panic("Could not borrow a reference to the NFT minter")
+        if signer.borrow<&ExampleNFT.NFTMinter>(from: ExampleNFT.MinterStoragePath) != nil {
+            self.minter = signer.borrow<&ExampleNFT.NFTMinter>(from: ExampleNFT.MinterStoragePath)!
+            return
+        }
+
+        // Create a new empty collection
+        let collection <- ExampleNFT.createEmptyCollection()
+
+        // save it to the account
+        signer.save(<-collection, to: ExampleNFT.CollectionStoragePath)
+
+        // create a public capability for the collection
+        signer.link<&{NonFungibleToken.CollectionPublic, MetadataViews.ResolverCollection}>(
+            ExampleNFT.CollectionPublicPath,
+            target: ExampleNFT.CollectionStoragePath
+        )
+
+        self.minter = signer.borrow<&ExampleNFT.NFTMinter>(from: ExampleNFT.MinterStoragePath)!
     }
 
     execute {
