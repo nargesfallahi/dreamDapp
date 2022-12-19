@@ -170,6 +170,7 @@ pub contract ExampleNFT: NonFungibleToken {
         pub fun deposit(token: @NonFungibleToken.NFT)
         pub fun getIDs(): [UInt64]
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
+        pub fun getNFTs(): [&NonFungibleToken.NFT]
         pub fun borrowExampleNFT(id: UInt64): &ExampleNFT.NFT? {
             post {
                 (result == nil) || (result?.id == id):
@@ -237,6 +238,20 @@ pub contract ExampleNFT: NonFungibleToken {
         ///
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
             return (&self.ownedNFTs[id] as &NonFungibleToken.NFT?)!
+        }
+
+
+        pub fun getNFTs(): [&NonFungibleToken.NFT] {
+            var nfts: [&NonFungibleToken.NFT] = []
+
+            let ids = self.getIDs()
+
+            for id in ids {
+                let nft = self.borrowNFT(id: id)
+                nfts.append(nft)
+            }
+
+            return nfts
         }
 
         /// Gets a reference to an NFT in the collection so that
