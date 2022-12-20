@@ -6,7 +6,7 @@ import MetadataViews from 0xf8d6e0586b0a20c7
 // It must be run with the account that has the minter resource
 // stored in /storage/NFTMinter
 
-transaction(name: String, description: String, thumbnail: String) {
+transaction(nftIDs: [UInt64], name: String, description: String, thumbnail: String) {
 
     // local variable for storing the minter reference
     let minter: &ExampleNFT.NFTMinter
@@ -28,11 +28,12 @@ transaction(name: String, description: String, thumbnail: String) {
 
 
         // Mint the NFT and deposit it to the recipient's collection
-        self.minter.mintNFT(
+        self.minter.mintSuperNFT(
             recipient: receiver,
             name: name,
             description: description,
             thumbnail: thumbnail,
+            nftIDs: nftIDs,
             royalties: []
         )
 

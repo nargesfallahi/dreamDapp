@@ -8,7 +8,4 @@ pub fun main(address: Address) {
            ?? panic("Could not borrow a reference to the owners collection")
 
    log(collectionRef.getNFTs())
-  //let nfts = collectionRef[0].ownedNFTs
-
-     // log(nfts)
 }
