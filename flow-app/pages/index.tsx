@@ -7,6 +7,7 @@ export default function Home() {
 
     const [user, setUser] = useState({loggedIn: null})
     const [name, setName] = useState('') // NEW
+    const [nfts, setNFTs] = useState('') // NEW
 
     useEffect(() => fcl.currentUser.subscribe(setUser), [])
 
@@ -40,6 +41,13 @@ transaction {
     prepare(signer: AuthAccount) {
         // Return early if the account already has a collection
         if signer.borrow<&SuperNFT.Collection>(from: SuperNFT.CollectionStoragePath) != nil {
+            if signer.borrow<&SuperNFT.NFTMinter>(from: SuperNFT.MinterStoragePath) != nil {
+                return
+            }
+            
+            let minter <- SuperNFT.createNFTMinter()
+            signer.save(<-minter, to: SuperNFT.MinterStoragePath)
+            
             return
         }
 
@@ -54,6 +62,9 @@ transaction {
             SuperNFT.CollectionPublicPath,
             target: SuperNFT.CollectionStoragePath
         )
+        
+           let minter <-  SuperNFT.createNFTMinter()
+           signer.save(<-minter, to: SuperNFT.MinterStoragePath)
     }
 
     execute {
@@ -129,15 +140,41 @@ transaction() {
         console.log(transaction)
     }
 
+    const retrieveNFTs = async () => {
+        const nfts = await fcl.query({
+            cadence: `
+        import NonFungibleToken from 0x631e88ae7f1d7c20
+import SuperNFT from 0xac126e1c854653c0
+
+pub fun main(address: Address) : [&NonFungibleToken.NFT]? {
+    let acct = getAccount(address)
+
+   let collectionRef = acct.getCapability(SuperNFT.CollectionPublicPath).borrow<&{SuperNFT.SuperNFTCollectionPublic}>()
+           ?? panic("Could not borrow a reference to the owners collection")
+
+   log(collectionRef.getNFTs())
+   return collectionRef.getNFTs()
+}
+      `,
+            args: (arg, t) => [arg(user.addr, t.Address)]
+        })
+
+        setNFTs(nfts[0].name ?? 'No NFTs')
+    //    setNFTs(nfts[0].name ?? 'No NFTs')
+    //    setNFTs(nfts[0].name ?? 'No NFTs')
+    }
+
 
     const AuthedState = () => {
         return (
             <div>
                 <div>Address: {user?.addr ?? "No Address"}</div>
                 <div>Profile Name: {name ?? "--"}</div> {/* NEW */}
+                <div>Profile NFTs: {nfts ?? "--"}</div> {/* NEW */}
                 <button onClick={sendQuery}>Send Query</button> {/* NEW */}
                 <button onClick={initAccount}>Init Account</button> {/* NEW */}
                 <button onClick={mintNFT}>Mint NFT</button> {/* NEW */}
+                <button onClick={retrieveNFTs}>Get NFTs</button> {/* NEW */}
                 <button onClick={fcl.unauthenticate}>Log Out</button>
             </div>
         )
