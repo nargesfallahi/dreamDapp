@@ -19,7 +19,6 @@ pub contract ExampleNFT: NonFungibleToken {
 
     pub var SuperNFTData: {UInt64: UInt64}
 
-    //
     pub var allNFTs: {UInt64: String}
 
     /// The event that is emitted when the contract is created
@@ -367,17 +366,22 @@ pub contract ExampleNFT: NonFungibleToken {
             royalties: [MetadataViews.Royalty],
         ) {
 
-        var sum = 0
+            var sum = UInt64(0)
+
             for nftID in nftIDs {
                 if ExampleNFT.allNFTs[nftID] == nil {
                     panic("NFT doesnt exist")
                 }
 
                 if ExampleNFT.allNFTs[nftID] == "superNFT" {
-                 panic("NFT doesnt exist")
+                    panic("cannot create super NFT with other super NFTs")
                 }
 
                 sum = sum + nftID
+            }
+
+            if ExampleNFT.SuperNFTData[sum] != nil {
+                panic("super NFT with combined NFTs already exists")
             }
 
             let metadata: {String: AnyStruct} = {}
@@ -387,13 +391,7 @@ pub contract ExampleNFT: NonFungibleToken {
             metadata["minter"] = recipient.owner!.address
             metadata["type"] = "SuperNFT"
             // save childNFTs as a metadata along with their thumbnails etc
-
-            // this piece of metadata will be used to show embedding rarity into a trait
-            metadata["foo"] = "bar"
-
-            if ExampleNFT.SuperNFTData[sum] != nil {
-                panic("super NFT already exists")
-            }
+            metadata["childNFTs"] = nftIDs
 
             // create a new NFT
             var newNFT <- create NFT(
@@ -420,6 +418,7 @@ pub contract ExampleNFT: NonFungibleToken {
         // Initialize the total supply
         self.totalSupply = 0
         self.allNFTs = {}
+        self.SuperNFTData = {}
 
         // Set the named paths
         self.CollectionStoragePath = /storage/exampleNFTCollection
