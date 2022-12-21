@@ -1,13 +1,17 @@
 import Head from 'next/head'
 import "../flow/config";
+import * as cadence from "./cadence/cadence";
 import { useState, useEffect } from "react";
 import * as fcl from "@onflow/fcl";
+import Button from 'react-bootstrap/Button';
+
 
 export default function Home() {
 
     const [user, setUser] = useState({loggedIn: null})
     const [name, setName] = useState('') // NEW
-    const [nfts, setNFTs] = useState('') // NEW
+    const [nfts, setNFTs] = useState([]) // NEW
+    const [selectedNFTs, setSelectedNFTs] = useState([])
 
     useEffect(() => fcl.currentUser.subscribe(setUser), [])
 
@@ -29,49 +33,7 @@ export default function Home() {
 
     const initAccount = async () => {
         const transactionId = await fcl.mutate({
-            cadence: `
-      import NonFungibleToken from 0x631e88ae7f1d7c20
-import SuperNFT from 0xac126e1c854653c0
-import MetadataViews from 0x631e88ae7f1d7c20
-
-// This transaction is what an account would run
-// to set itself up to receive NFTs
-transaction {
-
-    prepare(signer: AuthAccount) {
-        // Return early if the account already has a collection
-        if signer.borrow<&SuperNFT.Collection>(from: SuperNFT.CollectionStoragePath) != nil {
-            if signer.borrow<&SuperNFT.NFTMinter>(from: SuperNFT.MinterStoragePath) != nil {
-                return
-            }
-            
-            let minter <- SuperNFT.createNFTMinter()
-            signer.save(<-minter, to: SuperNFT.MinterStoragePath)
-            
-            return
-        }
-
-        // Create a new empty collection
-        let collection <- SuperNFT.createEmptyCollection()
-
-        // save it to the account
-        signer.save(<-collection, to: SuperNFT.CollectionStoragePath)
-
-        // create a public capability for the collection
-        signer.link<&{NonFungibleToken.CollectionPublic, MetadataViews.ResolverCollection, SuperNFT.SuperNFTCollectionPublic}>(
-            SuperNFT.CollectionPublicPath,
-            target: SuperNFT.CollectionStoragePath
-        )
-        
-           let minter <-  SuperNFT.createNFTMinter()
-           signer.save(<-minter, to: SuperNFT.MinterStoragePath)
-    }
-
-    execute {
-      log("Setup account")
-    }
-}
-    `,
+            cadence: cadence.cadenceTransactionInitAccount,
             payer: fcl.authz,
             proposer: fcl.authz,
             authorizations: [fcl.authz],
@@ -85,51 +47,11 @@ transaction {
 
     const mintNFT = async () => {
         const transactionId = await fcl.mutate({
-            cadence: `
-      import NonFungibleToken from 0x631e88ae7f1d7c20
-import SuperNFT from 0xac126e1c854653c0
-import MetadataViews from 0x631e88ae7f1d7c20
-
-// This script uses the NFTMinter resource to mint a new NFT
-// It must be run with the account that has the minter resource
-// stored in /storage/NFTMinter
-
-transaction() {
-
-    // local variable for storing the minter reference
-    let minter: &SuperNFT.NFTMinter
-
-    prepare(signer: AuthAccount) {
-        // borrow a reference to the NFTMinter resource in storage
-        self.minter = signer.borrow<&SuperNFT.NFTMinter>(from: SuperNFT.MinterStoragePath)
-            ?? panic("Could not borrow a reference to the NFT minter")
-    }
-
-    execute {
-        // Borrow the recipient's public NFT collection reference
-        let receiver = getAccount(0xc624b7094e622a83)
-            .getCapability(SuperNFT.CollectionPublicPath)
-            .borrow<&{NonFungibleToken.CollectionPublic}>()
-            ?? panic("Could not get receiver reference to the NFT Collection")
-
-
-
-
-        // Mint the NFT and deposit it to the recipient's collection
-        self.minter.mintNFT(
-            recipient: receiver,
-            name: "NFT1",
-            description: "First NFT",
-            thumbnail: "https://images.unsplash.com/photo-1615789591457-74a63395c990?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80",
-            royalties: []
-        )
-
-
-
-        log("Minted an NFT")
-    }
-}
-    `,
+            cadence: cadence.cadenceTransactionMintNFT,
+            args: (arg, t) => [arg(user.addr, t.Address),
+                arg("random name", t.String),
+                arg("random description", t.String),
+                arg("https://assets.nbatopshot.com/editions/5_video_game_numbers_rare/054d38ac-10fb-492c-a47f-54fd1479b247/play_054d38ac-10fb-492c-a47f-54fd1479b247_5_video_game_numbers_rare_capture_Animated_1080_1920_Black.mp4", t.String)],
             payer: fcl.authz,
             proposer: fcl.authz,
             authorizations: [fcl.authz],
@@ -138,44 +60,82 @@ transaction() {
 
         const transaction = await fcl.tx(transactionId).onceSealed()
         console.log(transaction)
+
+        const nfts = await fcl.query({
+            cadence: cadence.cadenceScriptRetrieveNFTs,
+            args: (arg, t) => [arg(user.addr, t.Address)]
+        })
+
+        setNFTs(nfts ?? 'No NFTs')
+    }
+
+    // min super NFTs
+    const mintSuperNFT = async () => {
+        const transactionId = await fcl.mutate({
+            cadence: cadence.cadenceTransactionMintSuperNFT,
+            args: (arg, t) => [arg(selectedNFTs, t.Array(t.UInt64))],
+            payer: fcl.authz,
+            proposer: fcl.authz,
+            authorizations: [fcl.authz],
+            limit: 999
+        })
+
+        const transaction = await fcl.tx(transactionId).onceSealed()
+        console.log(transaction)
+
+        const nfts = await fcl.query({
+            cadence: cadence.cadenceScriptRetrieveNFTs,
+            args: (arg, t) => [arg(user.addr, t.Address)]
+        })
+
+        setNFTs(nfts ?? 'No NFTs')
     }
 
     const retrieveNFTs = async () => {
         const nfts = await fcl.query({
-            cadence: `
-        import NonFungibleToken from 0x631e88ae7f1d7c20
-import SuperNFT from 0xac126e1c854653c0
-
-pub fun main(address: Address) : [&NonFungibleToken.NFT]? {
-    let acct = getAccount(address)
-
-   let collectionRef = acct.getCapability(SuperNFT.CollectionPublicPath).borrow<&{SuperNFT.SuperNFTCollectionPublic}>()
-           ?? panic("Could not borrow a reference to the owners collection")
-
-   log(collectionRef.getNFTs())
-   return collectionRef.getNFTs()
-}
-      `,
+            cadence: cadence.cadenceScriptRetrieveNFTs,
             args: (arg, t) => [arg(user.addr, t.Address)]
         })
 
-        setNFTs(nfts[0].name ?? 'No NFTs')
-    //    setNFTs(nfts[0].name ?? 'No NFTs')
-    //    setNFTs(nfts[0].name ?? 'No NFTs')
+        setNFTs(nfts ?? 'No NFTs')
     }
 
+    const handleSelectedNFTChange = async (e) => {
+        const { value, checked } = e.target
+
+        if (checked) {
+            setSelectedNFTs((prevState) => ([...prevState, value]))
+        } else {
+            setSelectedNFTs((prevState) => prevState.filter(n => n !== value))
+        }
+    }
+
+    // Mint Super NFT -> pop up with thumbnail of existing ones (retrieveNFT) radio button we select -> submit -> mints it
 
     const AuthedState = () => {
         return (
             <div>
+                <Button onClick={initAccount}>Init Account</Button> {/* NEW */}
+                <Button onClick={mintNFT}>Mint NFT</Button> {/* NEW */}
+                <Button onClick={sendQuery}>Send Query</Button> {/* NEW */}
+                <Button onClick={retrieveNFTs}>Get NFTs</Button> {/* NEW */}
+                <Button onClick={mintSuperNFT}>Mint SUPER NFT</Button>
+                <Button onClick={fcl.unauthenticate}>Log Out</Button>
                 <div>Address: {user?.addr ?? "No Address"}</div>
                 <div>Profile Name: {name ?? "--"}</div> {/* NEW */}
-                <div>Profile NFTs: {nfts ?? "--"}</div> {/* NEW */}
-                <button onClick={sendQuery}>Send Query</button> {/* NEW */}
-                <button onClick={initAccount}>Init Account</button> {/* NEW */}
-                <button onClick={mintNFT}>Mint NFT</button> {/* NEW */}
-                <button onClick={retrieveNFTs}>Get NFTs</button> {/* NEW */}
-                <button onClick={fcl.unauthenticate}>Log Out</button>
+                <div>Profile NFTs: {nfts.map(nft => (
+                    <div key={nft.id}>
+                        <h2>NFT Name: {nft.name}</h2>
+                        <h2>NFT Description: {nft.description}</h2>
+                        <h2>NFT ID: {nft.id}</h2>
+                        <input type="checkbox" id={nft.id} value={nft.id} name="nftID" onChange={handleSelectedNFTChange} checked={selectedNFTs.includes(nft.id)} /> Select NFT
+                        <img width="100" src={nft.thumbnail} alt="nft image"></img>
+                        {nft.metadata["type"] == "SuperNFT" ?
+                            <h2>Child NFTs: {nft.metadata["childNFTs"].map(nftID => nfts.filter(nft => nft.id == nftID).map(nft => <h3>Child thumbnail: <img width="100" src={nft.thumbnail} alt="nft image"></img></h3>))}</h2>
+                            : <h2>None</h2>}
+                    </div>
+                    ))}{/* NEW */}
+                </div>
             </div>
         )
     }

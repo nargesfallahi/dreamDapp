@@ -1,6 +1,6 @@
-import NonFungibleToken from 0xf8d6e0586b0a20c7
-import ExampleNFT from 0xf8d6e0586b0a20c7
-import MetadataViews from 0xf8d6e0586b0a20c7
+import NonFungibleToken from 0x631e88ae7f1d7c20
+import SuperNFT from 0xac126e1c854653c0
+import MetadataViews from 0x631e88ae7f1d7c20
 
 // This script uses the NFTMinter resource to mint a new NFT
 // It must be run with the account that has the minter resource
@@ -9,18 +9,18 @@ import MetadataViews from 0xf8d6e0586b0a20c7
 transaction(nftIDs: [UInt64], name: String, description: String, thumbnail: String) {
 
     // local variable for storing the minter reference
-    let minter: &ExampleNFT.NFTMinter
+    let minter: &SuperNFT.NFTMinter
 
     prepare(signer: AuthAccount) {
         // borrow a reference to the NFTMinter resource in storage
-        self.minter = signer.borrow<&ExampleNFT.NFTMinter>(from: ExampleNFT.MinterStoragePath)
+        self.minter = signer.borrow<&SuperNFT.NFTMinter>(from: SuperNFT.MinterStoragePath)
             ?? panic("Could not borrow a reference to the NFT minter")
     }
 
     execute {
         // Borrow the recipient's public NFT collection reference
         let receiver = getAccount(0x01cf0e2f2f715450)
-            .getCapability(ExampleNFT.CollectionPublicPath)
+            .getCapability(SuperNFT.CollectionPublicPath)
             .borrow<&{NonFungibleToken.CollectionPublic}>()
             ?? panic("Could not get receiver reference to the NFT Collection")
 
