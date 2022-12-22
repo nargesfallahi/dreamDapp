@@ -55,7 +55,10 @@ export const AuthedState = () => {
         <Text>Address: {user?.addr ?? 'No Address'}</Text>
       </Box> */}
       <Button onClick={mintSuperNFT}>Mint SUPER NFT</Button>
-      <Grid templateColumns={'repeat(3, 302px)'} gap={'16px'}>
+      <Grid
+        templateColumns={['auto', 'auto', '1fr 1fr', 'repeat(3, 302px)']}
+        gap={'16px'}
+      >
         {nfts.map((nft) => (
           <Nft key={nft.id + nft.name + 'upper'} nft={nft} />
         ))}
