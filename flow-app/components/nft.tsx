@@ -131,7 +131,7 @@ export const Nft = ({ nft, selectNft, isChecked }: Props) => {
           </Box>
         </SlideBox>
       </Box>
-      <Grid templateColumns={'50px 1fr'} gap="4" p={4}>
+      <Grid templateColumns={'50px 1fr'} gap="4" p={3}>
         <Avatar size="md" name="Test Nft" />
         <Box>
           <Text fontWeight={'bold'}>
@@ -139,8 +139,12 @@ export const Nft = ({ nft, selectNft, isChecked }: Props) => {
           </Text>
           <Text>
             by{' '}
-            <Link color="twitter.500" fontWeight={'bold'}>
-              Test NFT
+            <Link
+              href={`https://testnet.flowscan.org/account/${nft.metadata.minter}`}
+              color="twitter.500"
+              fontWeight={'bold'}
+            >
+              {nft.metadata.minter}
             </Link>
           </Text>
         </Box>

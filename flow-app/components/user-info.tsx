@@ -17,7 +17,11 @@ export const UserInfo = () => {
         {user?.loggedIn ? (
           <>
             <Avatar size="md" name="User Name" />
-            <Link mt="10px" href="" color="twitter.400">
+            <Link
+              mt="10px"
+              href={`https://testnet.flowscan.org/account/${user.addr}`}
+              color="twitter.400"
+            >
               {user.addr}
             </Link>
           </>
