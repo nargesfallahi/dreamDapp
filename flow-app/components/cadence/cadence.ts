@@ -38,7 +38,7 @@ transaction {
     execute {
       log("Setup account")
     }
-}`
+}`;
 
 export const cadenceTransactionMintNFT = `import NonFungibleToken from 0x631e88ae7f1d7c20
 import SuperNFT from 0xac126e1c854653c0
@@ -81,7 +81,7 @@ transaction(recipient: Address, name: String, description: String, thumbnail: St
 
         log("Minted an NFT")
     }
-}`
+}`;
 
 export const cadenceTransactionMintSuperNFT = `
 import NonFungibleToken from 0x631e88ae7f1d7c20
@@ -92,7 +92,7 @@ import MetadataViews from 0x631e88ae7f1d7c20
 // It must be run with the account that has the minter resource
 // stored in /storage/NFTMinter
 
-transaction(nftIDs: [UInt64]) {
+transaction(recipient: Address, nftIDs: [UInt64], collectionName: String, collectionDescription: String, thumbnail: String) {
 
     // local variable for storing the minter reference
     let minter: &SuperNFT.NFTMinter
@@ -105,7 +105,7 @@ transaction(nftIDs: [UInt64]) {
 
     execute {
         // Borrow the recipient's public NFT collection reference
-        let receiver = getAccount(0xc624b7094e622a83)
+        let receiver = getAccount(recipient)
             .getCapability(SuperNFT.CollectionPublicPath)
             .borrow<&{NonFungibleToken.CollectionPublic}>()
             ?? panic("Could not get receiver reference to the NFT Collection")
@@ -116,9 +116,9 @@ transaction(nftIDs: [UInt64]) {
         // Mint the NFT and deposit it to the recipient's collection
         self.minter.mintSuperNFT(
             recipient: receiver,
-            name: "first super NFT",
-            description: "I am a super NFT",
-            thumbnail: "https://static01.nyt.com/images/2019/10/01/science/00SCI-CATS1/merlin_102054072_34962289-a2a4-4c52-9969-4b2719347e76-superJumbo.jpg?quality=75&auto=webp",
+            name: collectionName,
+            description: collectionDescription,
+            thumbnail: thumbnail,
             nftIDs: nftIDs,
             royalties: []
         )
@@ -128,7 +128,7 @@ transaction(nftIDs: [UInt64]) {
         log("Minted an NFT")
     }
 }
-`
+`;
 
 export const cadenceScriptRetrieveNFTs = `import NonFungibleToken from 0x631e88ae7f1d7c20
 import SuperNFT from 0xac126e1c854653c0
@@ -141,4 +141,4 @@ pub fun main(address: Address) : [&NonFungibleToken.NFT]? {
 
    log(collectionRef.getNFTs())
    return collectionRef.getNFTs()
-}`
+}`;
