@@ -9,6 +9,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import '../flow/config';
 import * as cadence from './cadence/cadence';
 
 type FclUserType = {
