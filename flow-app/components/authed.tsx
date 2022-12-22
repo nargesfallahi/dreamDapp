@@ -4,6 +4,7 @@ import {
   Flex,
   Grid,
   Input,
+  Spinner,
   Tab,
   TabList,
   TabPanel,
@@ -23,6 +24,7 @@ export const AuthedState = () => {
   const [description, setDescription] = useState('');
   const [selectedNFTs, setSelectedNFTs] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const toggleModalState = useCallback(() => setIsModalOpen((s) => !s), []);
 
@@ -34,11 +36,13 @@ export const AuthedState = () => {
 
   // mint super NFTs
   const mintSuperNFT = useCallback(async () => {
+    setLoading(true);
     try {
       const transactionId = await fcl.mutate({
         cadence: cadence.cadenceTransactionMintSuperNFT,
         args: (arg: any, t: any) => [
-          arg(selectedNFTs, t.Array(t.UInt64)).arg(name, t.String),
+          arg(selectedNFTs, t.Array(t.UInt64)),
+          arg(name, t.String),
           arg(description, t.String),
         ],
         payer: fcl.authz,
@@ -56,7 +60,12 @@ export const AuthedState = () => {
       });
 
       setNFTs(nfts);
+      setLoading(false);
+      setSelectedNFTs([]);
     } catch (e) {
+      setLoading(false);
+      setIsModalOpen(false);
+      setSelectedNFTs([]);
       console.log(e);
     }
   }, [fcl, selectedNFTs, setNFTs, user, name, description]);
@@ -78,23 +87,29 @@ export const AuthedState = () => {
         onClose={toggleModalState}
         onSubmit={mintSuperNFT}
       >
-        <Box>
-          <label>Name</label>
-          <Input
-            id="name"
-            variant={'outline'}
-            placeholder="My super NFT"
-            mb="3"
-            onChange={handleNameChange}
-          />
-          <label>Description</label>
-          <Input
-            id="description"
-            variant={'outline'}
-            placeholder="The best super NFT"
-            onChange={handleDescriptionChange}
-          />
-        </Box>
+        {loading ? (
+          <Grid placeItems={'center'}>
+            <Spinner />
+          </Grid>
+        ) : (
+          <Box>
+            <label>Name</label>
+            <Input
+              id="name"
+              variant={'outline'}
+              placeholder="My super NFT"
+              mb="3"
+              onChange={handleNameChange}
+            />
+            <label>Description</label>
+            <Input
+              id="description"
+              variant={'outline'}
+              placeholder="The best super NFT"
+              onChange={handleDescriptionChange}
+            />
+          </Box>
+        )}
       </Modal>
       <Tabs>
         <TabList mb={6}>
