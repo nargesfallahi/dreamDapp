@@ -11,7 +11,7 @@ import {
 } from 'react';
 import * as cadence from './cadence/cadence';
 
-type FclUser = {
+type FclUserType = {
   addr: string;
   cid: string;
   expiresAt: number;
@@ -20,8 +20,11 @@ type FclUser = {
   loggedIn: boolean;
 };
 
-type Nft = {
+export type NftType = {
   id: string;
+  uuid: string;
+  thumbnail: string;
+  name: string;
 };
 
 const defaultState = {
@@ -39,9 +42,9 @@ const defaultState = {
 };
 
 const AppProvider = createContext<{
-  user: FclUser | undefined;
-  nfts: Array<Nft>;
-  setNFTs: Dispatch<SetStateAction<Nft[] | []>>;
+  user: FclUserType | undefined;
+  nfts: Array<NftType>;
+  setNFTs: Dispatch<SetStateAction<NftType[] | []>>;
   fcl: typeof fcl;
 }>(defaultState);
 
