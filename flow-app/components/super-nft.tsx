@@ -62,7 +62,10 @@ export const SuperNFT = ({ nft }: Props) => {
       animate="initial"
     >
       <Box pos="relative">
-        <NftImages childNfts={(intersection as NftType[]) ?? []} />
+        {nft.thumbnail && <NftImage nft={nft} />}
+        {!nft.thumbnail && (
+          <NftImages childNfts={(intersection as NftType[]) ?? []} />
+        )}
       </Box>
 
       <Grid templateColumns={'50px 1fr'} gap="4" p={4}>
