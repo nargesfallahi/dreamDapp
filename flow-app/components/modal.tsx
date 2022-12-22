@@ -13,7 +13,7 @@ import { PropsWithChildren } from 'react';
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit?: () => void;
 };
 
 export const Modal = ({
@@ -34,9 +34,11 @@ export const Modal = ({
           <Button variant="ghost" mr={3} onClick={onClose}>
             Close
           </Button>
-          <Button onClick={onSubmit} variant="solid">
-            Secondary Action
-          </Button>
+          {onSubmit && (
+            <Button onClick={onSubmit} variant="solid">
+              Submit
+            </Button>
+          )}
         </ModalFooter>
       </ModalContent>
     </ChakraModal>
