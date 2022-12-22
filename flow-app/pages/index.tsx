@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react';
 import * as fcl from '@onflow/fcl';
 import Head from 'next/head';
 import { useAppProvider } from '../components/app-provider';
@@ -122,7 +123,9 @@ export default function Home() {
         <link rel="icon" href="/favicon.png" />
       </Head>
       <Header />
-      {user?.loggedIn ? <AuthedState /> : <UnauthenticatedState />}
+      <Box m="4">
+        {user?.loggedIn ? <AuthedState /> : <UnauthenticatedState />}
+      </Box>
     </div>
   );
 }
