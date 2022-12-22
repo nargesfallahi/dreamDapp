@@ -14,6 +14,7 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   onSubmit?: () => void;
+  title: string;
 };
 
 export const Modal = ({
@@ -21,12 +22,13 @@ export const Modal = ({
   onClose,
   onSubmit,
   children,
+  title,
 }: PropsWithChildren<Props>) => {
   return (
     <ChakraModal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Super NFT Configuration</ModalHeader>
+        <ModalHeader>{title}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>{children}</ModalBody>
 

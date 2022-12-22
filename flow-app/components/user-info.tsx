@@ -1,4 +1,4 @@
-import { Avatar, Box, Flex, Link } from '@chakra-ui/react';
+import { Avatar, Box, Button, Flex, Link } from '@chakra-ui/react';
 import { useAppProvider } from './app-provider';
 
 export const UserInfo = () => {
@@ -27,7 +27,7 @@ export const UserInfo = () => {
           </>
         ) : (
           <Box>
-            <button onClick={fcl.logIn}>Log In</button>
+            <Button onClick={fcl.logIn}>Log In</Button>
           </Box>
         )}
       </Flex>

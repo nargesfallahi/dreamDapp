@@ -108,18 +108,23 @@ export const Header = () => {
       >
         <Heading>Flow App</Heading>
         <Box>
-          <Button mr="3" variant="link" onClick={toggleModalState}>
-            Mint NFT
-          </Button>
-          <Button variant="link" onClick={fcl.unauthenticate}>
-            Log Out
-          </Button>
+          {user?.loggedIn && (
+            <>
+              <Button mr="3" variant="link" onClick={toggleModalState}>
+                Mint NFT
+              </Button>
+              <Button variant="link" onClick={fcl.unauthenticate}>
+                Log Out
+              </Button>
+            </>
+          )}
         </Box>
       </Flex>
       <Modal
         isOpen={isModalOpen}
         onClose={toggleModalState}
         onSubmit={initAndMint}
+        title={'Make your NFT'}
       >
         {loading ? (
           <Grid placeItems={'center'}>
@@ -147,7 +152,7 @@ export const Header = () => {
             <Input
               id="thumbnail"
               variant={'outline'}
-              placeholder="The best super NFT"
+              placeholder="https://image.com"
               onChange={handleThumbnailChange}
             />
           </Box>

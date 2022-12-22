@@ -138,7 +138,7 @@ export const AuthedState = () => {
             <Input
               id="thumbnail"
               variant={'outline'}
-              placeholder="The best super NFT"
+              placeholder="https://image.com"
               onChange={handleThumbnailChange}
             />
           </Box>

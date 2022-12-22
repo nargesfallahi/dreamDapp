@@ -66,7 +66,7 @@ export const Provider = ({ children }: PropsWithChildren) => {
   useEffect(() => fcl.currentUser.subscribe(setUser), []);
 
   const retrieveNFTs = useCallback(async () => {
-    if (!user) return;
+    if (!user?.addr) return;
     try {
       const nfts = await fcl.query({
         cadence: cadence.cadenceScriptRetrieveNFTs,
