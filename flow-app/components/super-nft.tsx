@@ -71,7 +71,7 @@ export const SuperNFT = ({ nft }: Props) => {
       <Grid templateColumns={'50px 1fr'} gap="4" p={4}>
         <Avatar size="md" name="Test Nft" />
         <Box>
-          <Text fontWeight={'bold'}>
+          <Text noOfLines={1} fontWeight={'bold'}>
             {nft.name} #{nft.id}
           </Text>
           <Text>
@@ -107,7 +107,7 @@ export const SuperNFT = ({ nft }: Props) => {
           View child nfts
         </Button>
       </SlideBox>
-      <Modal isOpen={isModalOpen} onClose={toggleModalState}>
+      <Modal isOpen={isModalOpen} onClose={toggleModalState} title="">
         <Grid templateColumns={'200px 200px'} gap={'6px'}>
           {intersection.map((n) => (
             <Box
@@ -119,7 +119,7 @@ export const SuperNFT = ({ nft }: Props) => {
             >
               <NftImage nft={n as NftType} />
               <Box p={1}>
-                <Text fontWeight={'bold'}>
+                <Text noOfLines={1} fontWeight={'bold'}>
                   {n.name} #{n.id}
                 </Text>
                 <Text>

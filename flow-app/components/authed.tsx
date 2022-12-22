@@ -57,6 +57,7 @@ export const AuthedState = () => {
       const transactionId = await fcl.mutate({
         cadence: cadence.cadenceTransactionMintSuperNFT,
         args: (arg: any, t: any) => [
+          arg(user?.addr, t.Address),
           arg(selectedNFTs, t.Array(t.UInt64)),
           arg(name, t.String),
           arg(description, t.String),
@@ -173,7 +174,7 @@ export const AuthedState = () => {
               borderBottomRightRadius={'0px'}
               borderBottomLeftRadius={'0px'}
             >
-              Mint SUPER NFT
+              Mint Collection NFT
             </Button>
           </Flex>
         </TabList>

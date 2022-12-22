@@ -92,7 +92,7 @@ import MetadataViews from 0x631e88ae7f1d7c20
 // It must be run with the account that has the minter resource
 // stored in /storage/NFTMinter
 
-transaction(nftIDs: [UInt64], collectionName: String, collectionDescription: String, thumbnail: String) {
+transaction(recipient: Address, nftIDs: [UInt64], collectionName: String, collectionDescription: String, thumbnail: String) {
 
     // local variable for storing the minter reference
     let minter: &SuperNFT.NFTMinter
@@ -105,7 +105,7 @@ transaction(nftIDs: [UInt64], collectionName: String, collectionDescription: Str
 
     execute {
         // Borrow the recipient's public NFT collection reference
-        let receiver = getAccount(0xc624b7094e622a83)
+        let receiver = getAccount(recipient)
             .getCapability(SuperNFT.CollectionPublicPath)
             .borrow<&{NonFungibleToken.CollectionPublic}>()
             ?? panic("Could not get receiver reference to the NFT Collection")
