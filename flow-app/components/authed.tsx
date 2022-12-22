@@ -50,7 +50,12 @@ export const AuthedState = () => {
         gap={'16px'}
       >
         {nfts.map((nft) => (
-          <Nft key={nft.id + nft.name + 'upper'} nft={nft} />
+          <Nft
+            key={nft.id + nft.name + 'upper'}
+            nft={nft}
+            selectNft={handleSelectedNFTChange}
+            isChecked={selectedNFTs.includes(nft.id)}
+          />
         ))}
       </Grid>
     </>
