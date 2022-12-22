@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Flex,
   Grid,
   Input,
   Tab,
@@ -9,7 +10,6 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react';
-// import * as fcl from '@onflow/fcl';
 import { useCallback, useState } from 'react';
 import { useAppProvider } from './app-provider';
 import * as cadence from './cadence/cadence';
@@ -69,7 +69,6 @@ export const AuthedState = () => {
 
   return (
     <>
-      <Button onClick={toggleModalState}>Mint SUPER NFT</Button>
       <Modal
         isOpen={isModalOpen}
         onClose={toggleModalState}
@@ -98,6 +97,18 @@ export const AuthedState = () => {
           <Tab>All NFTs</Tab>
           <Tab>Super NFTs</Tab>
           <Tab>Regular NFTs</Tab>
+          <Flex flex="1" justifyContent={'flex-end'}>
+            <Button
+              colorScheme="blue"
+              justifySelf={'flex-end'}
+              disabled={selectedNFTs.length < 2}
+              onClick={toggleModalState}
+              borderBottomRightRadius={'0px'}
+              borderBottomLeftRadius={'0px'}
+            >
+              Mint SUPER NFT
+            </Button>
+          </Flex>
         </TabList>
         <TabPanels>
           <TabPanel>
