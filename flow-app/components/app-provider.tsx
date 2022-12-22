@@ -30,6 +30,7 @@ export type NftType = {
   metadata: {
     minter: string;
     type: 'RegularNFT' | 'SuperNFT';
+    childNFTs: string[] | undefined;
   };
 };
 

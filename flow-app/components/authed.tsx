@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { useAppProvider } from './app-provider';
 import * as cadence from './cadence/cadence';
 import { Nft } from './nft';
+import { SuperNFT } from './super-nft';
 
 export const AuthedState = () => {
   const { user, nfts, superNfts, nonSuper, setNFTs, fcl } = useAppProvider();
@@ -65,14 +66,18 @@ export const AuthedState = () => {
               templateColumns={['auto', 'auto', '1fr 1fr', 'repeat(3, 302px)']}
               gap={'16px'}
             >
-              {nfts.map((nft) => (
-                <Nft
-                  key={nft.id + nft.name + 'upper'}
-                  nft={nft}
-                  selectNft={handleSelectedNFTChange}
-                  isChecked={selectedNFTs.includes(nft.id)}
-                />
-              ))}
+              {nfts.map((nft) =>
+                nft.metadata.type === 'RegularNFT' ? (
+                  <Nft
+                    key={nft.id + nft.name + 'upper'}
+                    nft={nft}
+                    selectNft={handleSelectedNFTChange}
+                    isChecked={selectedNFTs.includes(nft.id)}
+                  />
+                ) : (
+                  <SuperNFT key={nft.id + nft.name + 'upper'} nft={nft} />
+                ),
+              )}
             </Grid>
           </TabPanel>
           <TabPanel>
@@ -81,12 +86,7 @@ export const AuthedState = () => {
               gap={'16px'}
             >
               {superNfts.map((nft) => (
-                <Nft
-                  key={nft.id + nft.name + 'upper'}
-                  nft={nft}
-                  selectNft={handleSelectedNFTChange}
-                  isChecked={selectedNFTs.includes(nft.id)}
-                />
+                <SuperNFT key={nft.id + nft.name + 'upper'} nft={nft} />
               ))}
             </Grid>
           </TabPanel>
