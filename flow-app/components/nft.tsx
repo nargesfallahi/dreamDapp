@@ -35,22 +35,22 @@ const AnimatedImageBox = chakra(motion.div, {
 });
 
 const slideMotion: Variants = {
-  rest: { opacity: 0, y: -90, top: 0, transition: { ease: 'easeIn' } },
+  rest: { opacity: 0, y: -90, top: 0, transition: { duration: 0.2 } },
   hover: {
     opacity: 1,
     y: 0,
     top: 0,
     transition: {
-      ease: 'easeIn',
+      duration: 0.2,
     },
   },
 };
 
 const imageMotion: Variants = {
-  rest: { opacity: 0, transition: { ease: 'easeIn' } },
+  rest: { opacity: 0, transition: { duration: 0.2 } },
   hover: {
     opacity: 1,
-    transition: { ease: 'easeIn' },
+    transition: { duration: 0.2 },
   },
 };
 
