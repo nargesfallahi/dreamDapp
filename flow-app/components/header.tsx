@@ -55,7 +55,12 @@ export const Header = () => {
 
   return (
     <header>
-      <Flex p="2" justifyContent="space-between" bg="gray.600">
+      <Flex
+        p="2"
+        justifyContent="space-between"
+        bg="gray.600"
+        _light={{ backgroundColor: 'gray.200' }}
+      >
         <Heading>Flow App</Heading>
         <Box>
           <Button mr="3" variant="link" onClick={initAndMint}>
