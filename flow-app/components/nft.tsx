@@ -80,6 +80,8 @@ export const Nft = ({ nft, selectNft, isChecked }: Props) => {
       pos={'relative'}
       whileHover="hover"
       animate="rest"
+      border={isChecked ? '4px' : '2px'}
+      borderColor={isChecked ? 'blue.400' : 'gray.200'}
     >
       <Box pos="relative">
         {nft.thumbnail.endsWith('.mp4') ? (
@@ -106,7 +108,7 @@ export const Nft = ({ nft, selectNft, isChecked }: Props) => {
         )}
         <SlideBox
           pos="absolute"
-          top="0"
+          top={'0px'}
           left="0"
           right="0"
           bottom="0"
