@@ -76,6 +76,7 @@ export const AuthedState = () => {
       setLoading(false);
       setSelectedNFTs([]);
       clearInputs();
+      setIsModalOpen(false);
     } catch (e) {
       setLoading(false);
       setIsModalOpen(false);
