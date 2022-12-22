@@ -13,7 +13,7 @@ export default function Home() {
   const UnauthenticatedState = () => {
     return (
       <div>
-        <Text>Log in to make a super nft</Text>
+        <Text>Log in to mint an nft</Text>
       </div>
     );
   };
