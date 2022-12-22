@@ -34,27 +34,31 @@ export const AuthedState = () => {
 
   // mint super NFTs
   const mintSuperNFT = useCallback(async () => {
-    const transactionId = await fcl.mutate({
-      cadence: cadence.cadenceTransactionMintSuperNFT,
-      args: (arg: any, t: any) => [
-        arg(selectedNFTs, t.Array(t.UInt64)).arg(name, t.String),
-        arg(description, t.String),
-      ],
-      payer: fcl.authz,
-      proposer: fcl.authz,
-      authorizations: [fcl.authz],
-      limit: 999,
-    });
+    try {
+      const transactionId = await fcl.mutate({
+        cadence: cadence.cadenceTransactionMintSuperNFT,
+        args: (arg: any, t: any) => [
+          arg(selectedNFTs, t.Array(t.UInt64)).arg(name, t.String),
+          arg(description, t.String),
+        ],
+        payer: fcl.authz,
+        proposer: fcl.authz,
+        authorizations: [fcl.authz],
+        limit: 999,
+      });
 
-    const transaction = await fcl.tx(transactionId).onceSealed();
-    console.log(transaction);
+      const transaction = await fcl.tx(transactionId).onceSealed();
+      console.log(transaction);
 
-    const nfts = await fcl.query({
-      cadence: cadence.cadenceScriptRetrieveNFTs,
-      args: (arg: any, t: any) => [arg(user?.addr, t.Address)],
-    });
+      const nfts = await fcl.query({
+        cadence: cadence.cadenceScriptRetrieveNFTs,
+        args: (arg: any, t: any) => [arg(user?.addr, t.Address)],
+      });
 
-    setNFTs(nfts);
+      setNFTs(nfts);
+    } catch (e) {
+      console.log(e);
+    }
   }, [fcl, selectedNFTs, setNFTs, user, name, description]);
 
   const handleSelectedNFTChange = useCallback((e: any) => {

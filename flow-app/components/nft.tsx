@@ -55,7 +55,7 @@ const imageMotion: Variants = {
 };
 
 export const Nft = ({ nft, selectNft, isChecked }: Props) => {
-  const [isHovered, setIsHovered] = useState(true);
+  const [_isHovered, setIsHovered] = useState(true);
 
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);

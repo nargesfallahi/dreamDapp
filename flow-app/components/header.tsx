@@ -7,45 +7,53 @@ export const Header = () => {
   const { fcl, user, setNFTs } = useAppProvider();
 
   const initAccount = useCallback(async () => {
-    const transactionId = await fcl.mutate({
-      cadence: cadence.cadenceTransactionInitAccount,
-      payer: fcl.authz,
-      proposer: fcl.authz,
-      authorizations: [fcl.authz],
-      limit: 999,
-    });
+    try {
+      const transactionId = await fcl.mutate({
+        cadence: cadence.cadenceTransactionInitAccount,
+        payer: fcl.authz,
+        proposer: fcl.authz,
+        authorizations: [fcl.authz],
+        limit: 999,
+      });
 
-    const transaction = await fcl.tx(transactionId).onceSealed();
-    console.log(transaction);
+      const transaction = await fcl.tx(transactionId).onceSealed();
+      console.log(transaction);
+    } catch (e) {
+      console.log(e);
+    }
   }, [fcl]);
 
   const mintNFT = useCallback(async () => {
-    const transactionId = await fcl.mutate({
-      cadence: cadence.cadenceTransactionMintNFT,
-      args: (arg: any, t: any) => [
-        arg(user?.addr, t.Address),
-        arg('random name', t.String),
-        arg('random description', t.String),
-        arg(
-          'https://assets.nbatopshot.com/editions/5_video_game_numbers_rare/054d38ac-10fb-492c-a47f-54fd1479b247/play_054d38ac-10fb-492c-a47f-54fd1479b247_5_video_game_numbers_rare_capture_Animated_1080_1920_Black.mp4',
-          t.String,
-        ),
-      ],
-      payer: fcl.authz,
-      proposer: fcl.authz,
-      authorizations: [fcl.authz],
-      limit: 999,
-    });
+    try {
+      const transactionId = await fcl.mutate({
+        cadence: cadence.cadenceTransactionMintNFT,
+        args: (arg: any, t: any) => [
+          arg(user?.addr, t.Address),
+          arg('random name', t.String),
+          arg('random description', t.String),
+          arg(
+            'https://assets.nbatopshot.com/editions/5_video_game_numbers_rare/054d38ac-10fb-492c-a47f-54fd1479b247/play_054d38ac-10fb-492c-a47f-54fd1479b247_5_video_game_numbers_rare_capture_Animated_1080_1920_Black.mp4',
+            t.String,
+          ),
+        ],
+        payer: fcl.authz,
+        proposer: fcl.authz,
+        authorizations: [fcl.authz],
+        limit: 999,
+      });
 
-    const transaction = await fcl.tx(transactionId).onceSealed();
-    console.log(transaction);
+      const transaction = await fcl.tx(transactionId).onceSealed();
+      console.log(transaction);
 
-    const nfts = await fcl.query({
-      cadence: cadence.cadenceScriptRetrieveNFTs,
-      args: (arg: any, t: any) => [arg(user?.addr, t.Address)],
-    });
+      const nfts = await fcl.query({
+        cadence: cadence.cadenceScriptRetrieveNFTs,
+        args: (arg: any, t: any) => [arg(user?.addr, t.Address)],
+      });
 
-    setNFTs(nfts);
+      setNFTs(nfts);
+    } catch (e) {
+      console.log(e);
+    }
   }, [user, setNFTs, fcl]);
 
   const initAndMint = useCallback(async () => {

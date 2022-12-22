@@ -67,12 +67,16 @@ export const Provider = ({ children }: PropsWithChildren) => {
 
   const retrieveNFTs = useCallback(async () => {
     if (!user) return;
-    const nfts = await fcl.query({
-      cadence: cadence.cadenceScriptRetrieveNFTs,
-      args: (arg: any, t: any) => [arg(user.addr, t.Address)],
-    });
-    console.log(nfts);
-    setNFTs(nfts);
+    try {
+      const nfts = await fcl.query({
+        cadence: cadence.cadenceScriptRetrieveNFTs,
+        args: (arg: any, t: any) => [arg(user.addr, t.Address)],
+      });
+      console.log(nfts);
+      setNFTs(nfts);
+    } catch (e) {
+      console.log(e);
+    }
   }, [user]);
 
   useEffect(() => {
