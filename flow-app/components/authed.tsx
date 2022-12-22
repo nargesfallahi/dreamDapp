@@ -22,6 +22,7 @@ export const AuthedState = () => {
   const { user, nfts, superNfts, nonSuper, setNFTs, fcl } = useAppProvider();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [thumbnail, setThumbnail] = useState('');
   const [selectedNFTs, setSelectedNFTs] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,6 +35,17 @@ export const AuthedState = () => {
     [],
   );
 
+  const handleThumbnailChange = useCallback(
+    (e: any) => setThumbnail(e.target.value),
+    [],
+  );
+
+  const clearInputs = useCallback(() => {
+    setName('');
+    setDescription('');
+    setThumbnail('');
+  }, []);
+
   // mint super NFTs
   const mintSuperNFT = useCallback(async () => {
     setLoading(true);
@@ -44,6 +56,7 @@ export const AuthedState = () => {
           arg(selectedNFTs, t.Array(t.UInt64)),
           arg(name, t.String),
           arg(description, t.String),
+          arg(thumbnail, t.String),
         ],
         payer: fcl.authz,
         proposer: fcl.authz,
@@ -62,13 +75,24 @@ export const AuthedState = () => {
       setNFTs(nfts);
       setLoading(false);
       setSelectedNFTs([]);
+      clearInputs();
     } catch (e) {
       setLoading(false);
       setIsModalOpen(false);
       setSelectedNFTs([]);
+      clearInputs();
       console.log(e);
     }
-  }, [fcl, selectedNFTs, setNFTs, user, name, description]);
+  }, [
+    fcl,
+    selectedNFTs,
+    setNFTs,
+    user,
+    name,
+    description,
+    thumbnail,
+    clearInputs,
+  ]);
 
   const handleSelectedNFTChange = useCallback((e: any) => {
     const { value, checked } = e.target;
@@ -107,6 +131,14 @@ export const AuthedState = () => {
               variant={'outline'}
               placeholder="The best super NFT"
               onChange={handleDescriptionChange}
+              mb="3"
+            />
+            <label>Thumbnail (Optional)</label>
+            <Input
+              id="thumbnail"
+              variant={'outline'}
+              placeholder="The best super NFT"
+              onChange={handleThumbnailChange}
             />
           </Box>
         )}

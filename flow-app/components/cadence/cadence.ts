@@ -92,7 +92,7 @@ import MetadataViews from 0x631e88ae7f1d7c20
 // It must be run with the account that has the minter resource
 // stored in /storage/NFTMinter
 
-transaction(nftIDs: [UInt64], collectionName: String, collectionDescription: String) {
+transaction(nftIDs: [UInt64], collectionName: String, collectionDescription: String, thumbnail: String) {
 
     // local variable for storing the minter reference
     let minter: &SuperNFT.NFTMinter
@@ -118,7 +118,7 @@ transaction(nftIDs: [UInt64], collectionName: String, collectionDescription: Str
             recipient: receiver,
             name: collectionName,
             description: collectionDescription,
-            thumbnail: "https://static01.nyt.com/images/2019/10/01/science/00SCI-CATS1/merlin_102054072_34962289-a2a4-4c52-9969-4b2719347e76-superJumbo.jpg?quality=75&auto=webp",
+            thumbnail: thumbnail,
             nftIDs: nftIDs,
             royalties: []
         )

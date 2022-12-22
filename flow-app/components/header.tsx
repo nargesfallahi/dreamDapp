@@ -1,10 +1,43 @@
-import { Box, Button, Flex, Heading } from '@chakra-ui/react';
-import { useCallback } from 'react';
+import {
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Heading,
+  Input,
+  Spinner,
+} from '@chakra-ui/react';
+import { useCallback, useState } from 'react';
 import { useAppProvider } from './app-provider';
 import * as cadence from './cadence/cadence';
+import { Modal } from './modal';
 
 export const Header = () => {
   const { fcl, user, setNFTs } = useAppProvider();
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [thumbnail, setThumbnail] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const clearInputs = useCallback(() => {
+    setName('');
+    setDescription('');
+    setThumbnail('');
+  }, []);
+
+  const toggleModalState = useCallback(() => setIsModalOpen((s) => !s), []);
+
+  const handleNameChange = useCallback((e: any) => setName(e.target.value), []);
+  const handleDescriptionChange = useCallback(
+    (e: any) => setDescription(e.target.value),
+    [],
+  );
+
+  const handleThumbnailChange = useCallback(
+    (e: any) => setThumbnail(e.target.value),
+    [],
+  );
 
   const initAccount = useCallback(async () => {
     try {
@@ -24,17 +57,15 @@ export const Header = () => {
   }, [fcl]);
 
   const mintNFT = useCallback(async () => {
+    setLoading(true);
     try {
       const transactionId = await fcl.mutate({
         cadence: cadence.cadenceTransactionMintNFT,
         args: (arg: any, t: any) => [
           arg(user?.addr, t.Address),
-          arg('random name', t.String),
-          arg('random description', t.String),
-          arg(
-            'https://assets.nbatopshot.com/editions/5_video_game_numbers_rare/054d38ac-10fb-492c-a47f-54fd1479b247/play_054d38ac-10fb-492c-a47f-54fd1479b247_5_video_game_numbers_rare_capture_Animated_1080_1920_Black.mp4',
-            t.String,
-          ),
+          arg(name, t.String),
+          arg(description, t.String),
+          arg(thumbnail, t.String),
         ],
         payer: fcl.authz,
         proposer: fcl.authz,
@@ -49,12 +80,17 @@ export const Header = () => {
         cadence: cadence.cadenceScriptRetrieveNFTs,
         args: (arg: any, t: any) => [arg(user?.addr, t.Address)],
       });
-
+      clearInputs();
+      setLoading(false);
       setNFTs(nfts);
+      setIsModalOpen(false);
     } catch (e) {
+      setLoading(false);
+      clearInputs();
+      setIsModalOpen(false);
       console.log(e);
     }
-  }, [user, setNFTs, fcl]);
+  }, [user, setNFTs, fcl, name, description, thumbnail, clearInputs]);
 
   const initAndMint = useCallback(async () => {
     await initAccount();
@@ -72,7 +108,7 @@ export const Header = () => {
       >
         <Heading>Flow App</Heading>
         <Box>
-          <Button mr="3" variant="link" onClick={initAndMint}>
+          <Button mr="3" variant="link" onClick={toggleModalState}>
             Mint NFT
           </Button>
           <Button variant="link" onClick={fcl.unauthenticate}>
@@ -80,6 +116,43 @@ export const Header = () => {
           </Button>
         </Box>
       </Flex>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={toggleModalState}
+        onSubmit={initAndMint}
+      >
+        {loading ? (
+          <Grid placeItems={'center'}>
+            <Spinner />
+          </Grid>
+        ) : (
+          <Box>
+            <label>Name</label>
+            <Input
+              id="name"
+              variant={'outline'}
+              placeholder="My super NFT"
+              mb="3"
+              onChange={handleNameChange}
+            />
+            <label>Description</label>
+            <Input
+              id="description"
+              variant={'outline'}
+              placeholder="The best super NFT"
+              onChange={handleDescriptionChange}
+              mb="3"
+            />
+            <label>Thumbnail (Optional)</label>
+            <Input
+              id="thumbnail"
+              variant={'outline'}
+              placeholder="The best super NFT"
+              onChange={handleThumbnailChange}
+            />
+          </Box>
+        )}
+      </Modal>
     </header>
   );
 };
