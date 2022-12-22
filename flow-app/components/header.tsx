@@ -22,7 +22,7 @@ export const Header = () => {
   const mintNFT = useCallback(async () => {
     const transactionId = await fcl.mutate({
       cadence: cadence.cadenceTransactionMintNFT,
-      args: (arg, t) => [
+      args: (arg: any, t: any) => [
         arg(user?.addr, t.Address),
         arg('random name', t.String),
         arg('random description', t.String),
@@ -42,7 +42,7 @@ export const Header = () => {
 
     const nfts = await fcl.query({
       cadence: cadence.cadenceScriptRetrieveNFTs,
-      args: (arg, t) => [arg(user?.addr, t.Address)],
+      args: (arg: any, t: any) => [arg(user?.addr, t.Address)],
     });
 
     setNFTs(nfts);
@@ -60,6 +60,7 @@ export const Header = () => {
         justifyContent="space-between"
         bg="gray.600"
         _light={{ backgroundColor: 'gray.200' }}
+        mb={'32px'}
       >
         <Heading>Flow App</Heading>
         <Box>
