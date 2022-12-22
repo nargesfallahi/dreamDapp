@@ -72,7 +72,7 @@ export const Provider = ({ children }: PropsWithChildren) => {
         cadence: cadence.cadenceScriptRetrieveNFTs,
         args: (arg: any, t: any) => [arg(user.addr, t.Address)],
       });
-      console.log(nfts);
+      // console.log(nfts);
       setNFTs(nfts);
     } catch (e) {
       console.log(e);

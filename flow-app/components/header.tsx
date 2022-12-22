@@ -50,14 +50,13 @@ export const Header = () => {
       });
 
       const transaction = await fcl.tx(transactionId).onceSealed();
-      console.log(transaction);
+      // console.log(transaction);
     } catch (e) {
       console.log(e);
     }
   }, [fcl]);
 
   const mintNFT = useCallback(async () => {
-    setLoading(true);
     try {
       const transactionId = await fcl.mutate({
         cadence: cadence.cadenceTransactionMintNFT,
@@ -74,7 +73,7 @@ export const Header = () => {
       });
 
       const transaction = await fcl.tx(transactionId).onceSealed();
-      console.log(transaction);
+      // console.log(transaction);
 
       const nfts = await fcl.query({
         cadence: cadence.cadenceScriptRetrieveNFTs,
@@ -93,6 +92,7 @@ export const Header = () => {
   }, [user, setNFTs, fcl, name, description, thumbnail, clearInputs]);
 
   const initAndMint = useCallback(async () => {
+    setLoading(true);
     await initAccount();
     await mintNFT();
   }, [initAccount, mintNFT]);

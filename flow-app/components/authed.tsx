@@ -10,6 +10,7 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Text,
 } from '@chakra-ui/react';
 import { useCallback, useState } from 'react';
 import { useAppProvider } from './app-provider';
@@ -26,6 +27,9 @@ export const AuthedState = () => {
   const [selectedNFTs, setSelectedNFTs] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  const toggleHasError = useCallback(() => setHasError((s) => !s), []);
 
   const toggleModalState = useCallback(() => setIsModalOpen((s) => !s), []);
 
@@ -78,6 +82,7 @@ export const AuthedState = () => {
       clearInputs();
       setIsModalOpen(false);
     } catch (e) {
+      setHasError(true);
       setLoading(false);
       setIsModalOpen(false);
       setSelectedNFTs([]);
@@ -108,9 +113,19 @@ export const AuthedState = () => {
   return (
     <>
       <Modal
+        isOpen={hasError}
+        onClose={toggleHasError}
+        title="Error completing request"
+      >
+        <Box>
+          <Text>This NFT combination already exists</Text>
+        </Box>
+      </Modal>
+      <Modal
         isOpen={isModalOpen}
         onClose={toggleModalState}
         onSubmit={mintSuperNFT}
+        title={'Make your NFT collection'}
       >
         {loading ? (
           <Grid placeItems={'center'}>
