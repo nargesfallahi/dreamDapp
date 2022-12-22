@@ -1,6 +1,8 @@
 import {
+  Box,
   Button,
   Grid,
+  Input,
   Tab,
   TabList,
   TabPanel,
@@ -8,22 +10,36 @@ import {
   Tabs,
 } from '@chakra-ui/react';
 // import * as fcl from '@onflow/fcl';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAppProvider } from './app-provider';
 import * as cadence from './cadence/cadence';
+import { Modal } from './modal';
 import { Nft } from './nft';
 import { SuperNFT } from './super-nft';
 
 export const AuthedState = () => {
   const { user, nfts, superNfts, nonSuper, setNFTs, fcl } = useAppProvider();
-  const [name, setName] = useState(''); // NEW
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [selectedNFTs, setSelectedNFTs] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // min super NFTs
-  const mintSuperNFT = async () => {
+  const toggleModalState = useCallback(() => setIsModalOpen((s) => !s), []);
+
+  const handleNameChange = useCallback((e: any) => setName(e.target.value), []);
+  const handleDescriptionChange = useCallback(
+    (e: any) => setDescription(e.target.value),
+    [],
+  );
+
+  // mint super NFTs
+  const mintSuperNFT = useCallback(async () => {
     const transactionId = await fcl.mutate({
       cadence: cadence.cadenceTransactionMintSuperNFT,
-      args: (arg: any, t: any) => [arg(selectedNFTs, t.Array(t.UInt64))],
+      args: (arg: any, t: any) => [
+        arg(selectedNFTs, t.Array(t.UInt64)).arg(name, t.String),
+        arg(description, t.String),
+      ],
       payer: fcl.authz,
       proposer: fcl.authz,
       authorizations: [fcl.authz],
@@ -39,9 +55,9 @@ export const AuthedState = () => {
     });
 
     setNFTs(nfts);
-  };
+  }, [fcl, selectedNFTs, setNFTs, user, name, description]);
 
-  const handleSelectedNFTChange = (e) => {
+  const handleSelectedNFTChange = useCallback((e: any) => {
     const { value, checked } = e.target;
 
     if (checked) {
@@ -49,11 +65,34 @@ export const AuthedState = () => {
     } else {
       setSelectedNFTs((prevState) => prevState.filter((n) => n !== value));
     }
-  };
+  }, []);
 
   return (
     <>
-      <Button onClick={mintSuperNFT}>Mint SUPER NFT</Button>
+      <Button onClick={toggleModalState}>Mint SUPER NFT</Button>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={toggleModalState}
+        onSubmit={mintSuperNFT}
+      >
+        <Box>
+          <label>Name</label>
+          <Input
+            id="name"
+            variant={'outline'}
+            placeholder="My super NFT"
+            mb="3"
+            onChange={handleNameChange}
+          />
+          <label>Description</label>
+          <Input
+            id="description"
+            variant={'outline'}
+            placeholder="The best super NFT"
+            onChange={handleDescriptionChange}
+          />
+        </Box>
+      </Modal>
       <Tabs>
         <TabList mb={6}>
           <Tab>All NFTs</Tab>
