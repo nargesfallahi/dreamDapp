@@ -7,6 +7,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import '../flow/config';
@@ -26,6 +27,10 @@ export type NftType = {
   uuid: string;
   thumbnail: string;
   name: string;
+  metadata: {
+    minter: string;
+    type: 'RegularNFT' | 'SuperNFT';
+  };
 };
 
 const defaultState = {
@@ -38,20 +43,24 @@ const defaultState = {
     loggedIn: false,
   },
   nfts: [],
+  superNfts: [],
+  nonSuper: [],
   setNFTs: () => {},
   fcl,
 };
 
 const AppProvider = createContext<{
   user: FclUserType | undefined;
-  nfts: Array<NftType>;
+  nfts: NftType[];
+  superNfts: NftType[];
+  nonSuper: NftType[];
   setNFTs: Dispatch<SetStateAction<NftType[] | []>>;
   fcl: typeof fcl;
 }>(defaultState);
 
 export const Provider = ({ children }: PropsWithChildren) => {
-  const [user, setUser] = useState<FclUser | undefined>();
-  const [nfts, setNFTs] = useState<Nft[] | []>([]); // NEW
+  const [user, setUser] = useState<FclUserType | undefined>();
+  const [nfts, setNFTs] = useState<NftType[] | []>([]); // NEW
 
   useEffect(() => fcl.currentUser.subscribe(setUser), []);
 
@@ -59,7 +68,7 @@ export const Provider = ({ children }: PropsWithChildren) => {
     if (!user) return;
     const nfts = await fcl.query({
       cadence: cadence.cadenceScriptRetrieveNFTs,
-      args: (arg, t) => [arg(user.addr, t.Address)],
+      args: (arg: any, t: any) => [arg(user.addr, t.Address)],
     });
     console.log(nfts);
     setNFTs(nfts);
@@ -71,8 +80,20 @@ export const Provider = ({ children }: PropsWithChildren) => {
     }
   }, [retrieveNFTs, user]);
 
+  const superNfts = useMemo(
+    () => (nfts ?? []).filter((nft) => nft.metadata.type === 'SuperNFT'),
+    [nfts],
+  );
+
+  const nonSuper = useMemo(
+    () => (nfts ?? []).filter((nft) => nft.metadata.type !== 'SuperNFT'),
+    [nfts],
+  );
+
   return (
-    <AppProvider.Provider value={{ user, nfts, setNFTs, fcl }}>
+    <AppProvider.Provider
+      value={{ user, nfts, superNfts, nonSuper, setNFTs, fcl }}
+    >
       {children}
     </AppProvider.Provider>
   );
